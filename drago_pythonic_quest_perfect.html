@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドラゴンPythonicクエスト：プログラマーの大冒険</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .map-cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+        }
+        
+        .map-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .player {
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            border: 3px solid #d69e2e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .enemy {
+            background: linear-gradient(145deg, #fed7d7, #fc8181);
+            border: 2px solid #e53e3e;
+            cursor: pointer;
+            animation: enemyGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes enemyGlow {
+            from { box-shadow: 0 0 5px #e53e3e; }
+            to { box-shadow: 0 0 20px #e53e3e, 0 0 30px #e53e3e; }
+        }
+        
+        .terrain {
+            background: linear-gradient(145deg, #c6f6d5, #9ae6b4);
+        }
+        
+        .quiz-container {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            color: #2d3748;
+        }
+        
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #4299e1;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .explanation-box {
+            background: linear-gradient(145deg, #ebf8ff, #bee3f8);
+            border: 2px solid #4299e1;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #2b6cb0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(145deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(145deg, #48bb78, #38a169);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(145deg, #f56565, #e53e3e);
+            color: white;
+        }
+        
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .story-text {
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <!-- タイトル画面 -->
+    <div id="titleScreen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="game-container max-w-4xl w-full p-8 text-center">
+            <div class="mb-8">
+                <i class="fas fa-dragon text-6xl text-red-500 mb-4"></i>
+                <h1 class="hero-title text-6xl font-bold mb-4">
+                    DRAGON PYTHONIC QUEST
+                </h1>
+                <h2 class="text-2xl text-gray-700 mb-6">プログラマーの大冒険</h2>
+                <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                    古代プログラミング王国に封印されし12の邪悪なモンスターたち。<br>
+                    若き勇者よ、Pythonicな魔法で世界を救え！<br>
+                    <span class="text-blue-600 font-semibold">オブジェクト指向プログラミングを学びながら冒険しよう！</span>
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-red-100 to-red-200 p-6 rounded-lg">
+                    <i class="fas fa-fire text-3xl text-red-500 mb-3"></i>
+                    <h3 class="font-bold text-lg mb-2">12の試練</h3>
+                    <p class="text-sm text-gray-700">クラス設計からデザインパターンまで</p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-lg">
+                    <i class="fas fa-code text-3xl text-blue-500 mb-3"></i>
+                    <h3 class="font-bold text-lg mb-2">実践的学習</h3>
+                    <p class="text-sm text-gray-700">本物のPythonコードで学習</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg">
+                    <i class="fas fa-gamepad text-3xl text-green-500 mb-3"></i>
+                    <h3 class="font-bold text-lg mb-2">RPG体験</h3>
+                    <p class="text-sm text-gray-700">ドラマティックなストーリー</p>
+                </div>
+            </div>
+            
+            <button onclick="startGame()" class="btn-primary text-xl px-8 py-4 rounded-full">
+                <i class="fas fa-play mr-2"></i>
+                冒険を始める
+            </button>
+        </div>
+    </div>
+
+    <!-- プロローグ画面 -->
+    <div id="prologueScreen" class="min-h-screen flex items-center justify-center p-6 hidden">
+        <div class="game-container max-w-4xl w-full p-8">
+            <div class="story-text mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-center text-yellow-400">
+                    <i class="fas fa-scroll mr-2"></i>古の伝説
+                </h2>
+                <p class="mb-4">
+                    昔々、プログラミング王国には平和が訪れていました。
+                    しかし、邪悪な魔法使いが現れ、12体の恐ろしいモンスターを召喚したのです。
+                </p>
+                <p class="mb-4">
+                    これらのモンスターは王国中に散らばり、貴重なプログラミングの知識を闇に葬ろうとしています。
+                    炎のドラゴンは図書館を、水の精霊は知識の川を、そして他のモンスターたちも
+                    それぞれ重要な場所を脅かしているのです。
+                </p>
+                <p class="mb-4">
+                    伝説によると、真のPythonicマスターのみが、
+                    オブジェクト指向プログラミングの力でこれらのモンスターを倒すことができるといいます。
+                </p>
+                <p class="text-center text-yellow-300 font-bold text-lg">
+                    若き勇者よ、王国を救う時が来ました！
+                </p>
+            </div>
+            <div class="text-center">
+                <button onclick="showMap()" class="btn-primary text-xl px-8 py-4">
+                    <i class="fas fa-sword mr-2"></i>冒険開始
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- マップ画面 -->
+    <div id="mapScreen" class="min-h-screen p-6 hidden">
+        <div class="game-container max-w-4xl mx-auto p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-map mr-2"></i>プログラミング王国
+                </h2>
+                <p class="text-gray-600">WASDキーで移動し、モンスターに触れて戦闘開始！</p>
+                <div class="mt-4 bg-blue-100 p-3 rounded-lg">
+                    <span class="text-blue-800 font-semibold">倒したモンスター: <span id="defeatedCount">0</span>/12</span>
+                </div>
+            </div>
+            
+            <div class="flex justify-center mb-6">
+                <div id="gameMap" class="grid grid-cols-9 gap-1 p-4 bg-gray-100 rounded-lg">
+                    <!-- マップはJavaScriptで生成 -->
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold mb-2">操作方法</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                        <div class="bg-white p-2 rounded">W: 上</div>
+                        <div class="bg-white p-2 rounded">A: 左</div>
+                        <div class="bg-white p-2 rounded">S: 下</div>
+                        <div class="bg-white p-2 rounded">D: 右</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 村人会話画面 -->
+    <div id="villagerScreen" class="min-h-screen flex items-center justify-center p-6 hidden">
+        <div class="game-container max-w-3xl w-full p-8">
+            <div id="villagerContent" class="text-center">
+                <!-- 村人の会話内容がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- バトル画面 -->
+    <div id="battleScreen" class="min-h-screen p-6 hidden">
+        <div class="game-container max-w-4xl mx-auto p-8">
+            <div id="battleContent">
+                <!-- バトル内容がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="resultScreen" class="min-h-screen flex items-center justify-center p-6 hidden">
+        <div class="game-container max-w-3xl w-full p-8 text-center">
+            <div id="resultContent">
+                <!-- 結果内容がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ゲームオーバー画面 -->
+    <div id="gameOverScreen" class="min-h-screen flex items-center justify-center p-6 hidden">
+        <div class="game-container max-w-3xl w-full p-8 text-center">
+            <div class="mb-8">
+                <i class="fas fa-skull text-6xl text-red-500 mb-4"></i>
+                <h2 class="text-4xl font-bold text-red-600 mb-4">ゲームオーバー</h2>
+                <p class="text-lg text-gray-700 mb-6">勇者は力尽きてしまいました...<br>しかし、失敗は成功の母！再挑戦しよう！</p>
+            </div>
+            <button onclick="restartGame()" class="btn-primary text-xl px-8 py-4">
+                <i class="fas fa-redo mr-2"></i>冒険再開
+            </button>
+        </div>
+    </div>
+
+    <!-- エンディング画面 -->
+    <div id="endingScreen" class="min-h-screen flex items-center justify-center p-6 hidden">
+        <div class="game-container max-w-4xl w-full p-8 text-center">
+            <div class="mb-8">
+                <i class="fas fa-crown text-6xl text-yellow-500 mb-4"></i>
+                <h2 class="hero-title text-4xl font-bold mb-4">CONGRATULATIONS!</h2>
+                <div class="story-text">
+                    <p class="mb-4">
+                        素晴らしい！すべてのモンスターを倒し、プログラミング王国に平和が戻りました！
+                    </p>
+                    <p class="mb-4">
+                        あなたは真のPythonicマスターとなり、オブジェクト指向プログラミングの
+                        全ての奥義を習得しました。
+                    </p>
+                    <p class="text-yellow-300 font-bold text-lg">
+                        伝説のプログラマーの誕生です！
+                    </p>
+                </div>
+            </div>
+            <button onclick="restartGame()" class="btn-primary text-xl px-8 py-4">
+                <i class="fas fa-play mr-2"></i>もう一度冒険する
+            </button>
+        </div>
+    </div>
+
+    <!-- オーディオ要素 -->
+    <audio id="bgmCastle" loop>
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/fbb2bdd4-c87a-49d9-a051-f78616b9567b.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmField" loop>
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/0088f21f-c57d-4676-968f-440cd6160b7e.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmBattle" loop>
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/bc225d10-7226-4656-aee6-201cdd976312.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmVictory">
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/83456f78-a30f-4a5d-ab05-07f9d391a114.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmDungeon" loop>
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/0cbfbef7-124d-48bc-9f31-5f0cd70cfdc0.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmFinalBoss" loop>
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/b8a2c1fa-2339-4d46-8293-f2f6d5bdb7f7.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgmGameOver">
+        <source src="https://cdn1.genspark.ai/user-upload-image/3/026930d9-7323-427d-97e6-6a13cf5fbcfe.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ゲーム状態
+        let gameState = {
+            playerPos: { x: 4, y: 4 },
+            defeatedEnemies: [],
+            currentEnemy: null,
+            currentScreen: 'title',
+            terrainMap: {} // 地形データを保存
+        };
+
+        // エネミーデータ
+        const enemies = [
+            { id: 1, x: 1, y: 1, type: '🔥', name: '炎のドラゴン', topic: 'クラスとオブジェクト', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/a6530ef9-fa65-4d19-8c32-ca3db1eafa8b' },
+            { id: 2, x: 7, y: 1, type: '💧', name: '水の精霊', topic: '継承とsuper()', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/7bb67bc0-9071-4d34-80bc-77143642a49c' },
+            { id: 3, x: 1, y: 3, type: '🗿', name: '土のゴーレム', topic: 'カプセル化と@property', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/11d81f71-1abd-48b1-a7d0-27aff2b71340' },
+            { id: 4, x: 7, y: 3, type: '🌪️', name: '風のガーゴイル', topic: 'ポリモーフィズム', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/f0b94a99-bd7f-4d09-9e29-18ab434db048' },
+            { id: 5, x: 1, y: 5, type: '✨', name: '光の天使', topic: 'モジュールとimport', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/ead61a85-7ccd-49c4-a7be-417b59842f3a' },
+            { id: 6, x: 7, y: 5, type: '🌑', name: '闇の悪魔', topic: '特殊メソッド', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/4e9494fe-09ac-461c-9446-6743f745c31d' },
+            { id: 7, x: 1, y: 7, type: '⚡', name: '雷エレメンタル', topic: '@staticmethod/@classmethod', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/e0bdd65c-930c-44fd-a144-4a3a86d23b9e' },
+            { id: 8, x: 7, y: 7, type: '🌿', name: '毒植物モンスター', topic: '例外処理', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/1875688c-42fc-4a20-a520-02ca24aa5e47' },
+            { id: 9, x: 3, y: 1, type: '🧊', name: '氷スライム', topic: 'イテレーター', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/f742ee7d-1d9c-4076-aa55-00247de09085' },
+            { id: 10, x: 5, y: 1, type: '🤖', name: '機械ロボット', topic: 'デコレーター', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/46b60d8b-6ea6-4a1b-8836-a4f172d8c350' },
+            { id: 11, x: 3, y: 7, type: '🔥', name: '炎のドラゴン（上級）', topic: 'シングルトン', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/7b6b232c-5750-486c-86b8-1d9947904043' },
+            { id: 12, x: 5, y: 7, type: '💧', name: '水の精霊（上級）', topic: 'ファクトリー', image: 'https://cdn1.genspark.ai/user-upload-image/22_generated/f120aae7-bb9f-414c-821c-9790dd786554' }
+        ];
+
+        // クイズデータ
+        const quizData = {
+            1: {
+                question: "次のコードで、クラスの正しい定義方法はどれですか？",
+                code: `# 銀行口座を表すクラス
+class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+    
+    def deposit(self, amount):
+        self.balance += amount
+        return self.balance`,
+                choices: [
+                    "クラス名は小文字で始める",
+                    "クラス名はPascalCaseで書く",
+                    "クラス名にアンダースコアを使う",
+                    "クラス名は動詞で始める"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！Pythonではクラス名はPascalCase（各単語の最初を大文字）で書くのが慣例です。これにより、クラスと関数を視覚的に区別できます。",
+                    wrong: "Pythonのクラス名はPascalCaseで書きます。BankAccountのように、各単語の最初を大文字にすることで、コードの可読性が向上します。"
+                }
+            },
+            2: {
+                question: "継承でsuper()を使う正しい理由は何ですか？",
+                code: `class Animal:
+    def __init__(self, name):
+        self.name = name
+    
+    def speak(self):
+        pass
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)  # これが重要
+        self.breed = breed
+    
+    def speak(self):
+        return f"{self.name}がワンと鳴きました"`,
+                choices: [
+                    "親クラスのメソッドを完全に無視するため",
+                    "親クラスのメソッドを呼び出し、コードの重複を避けるため",
+                    "子クラスでのみ動作させるため",
+                    "エラーを発生させるため"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！super()は親クラスのメソッドを呼び出し、コードの重複を避け、保守性を向上させます。親クラスの実装が変更されても、子クラスは自動的に恩恵を受けます。",
+                    wrong: "super()は親クラスのメソッドを呼び出すためのものです。これにより、親クラスの初期化処理を再利用し、DRY原則（Don't Repeat Yourself）を守ることができます。"
+                }
+            },
+            3: {
+                question: "@propertyデコレーターの主な利点は何ですか？",
+                code: `class BankAccount:
+    def __init__(self, initial_balance=0):
+        self.__balance = initial_balance
+    
+    @property
+    def balance(self):
+        """残高を取得（読み取り専用）"""
+        return self.__balance
+    
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount`,
+                choices: [
+                    "属性への直接アクセスを許可する",
+                    "メソッドを属性のようにアクセスでき、データの整合性を保つ",
+                    "クラスを継承可能にする",
+                    "エラーメッセージを表示する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！@propertyにより、メソッドを属性のようにアクセスできます（括弧なし）。また、内部データを保護しながら、必要に応じて計算や検証を行えます。",
+                    wrong: "@propertyがないと、balanceは通常のメソッドになり、account.balance()のように括弧付きで呼び出す必要があります。@propertyにより、自然なインターフェースを提供できます。"
+                }
+            },
+            4: {
+                question: "ポリモーフィズムの最大の利点は何ですか？",
+                code: `class Animal:
+    def make_sound(self):
+        pass
+
+class Dog(Animal):
+    def make_sound(self):
+        return "ワン"
+
+class Cat(Animal):
+    def make_sound(self):
+        return "ニャー"
+
+# ポリモーフィズムの活用
+animals = [Dog(), Cat()]
+for animal in animals:
+    print(animal.make_sound())  # 同じインターフェース`,
+                choices: [
+                    "コードの実行速度が向上する",
+                    "異なるクラスを同じインターフェースで扱え、拡張性が向上する",
+                    "メモリ使用量が削減される",
+                    "エラーが完全に無くなる"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！ポリモーフィズムにより、異なるクラスのオブジェクトを統一的に扱えます。新しい動物クラスを追加しても、既存のコードを変更する必要がありません。",
+                    wrong: "ポリモーフィズムなしでは、動物の種類ごとにif文で分岐する必要があります。新しい動物を追加するたびに、既存のコードを修正しなければならず、保守性が低下します。"
+                }
+            },
+            5: {
+                question: "モジュールを使う主な理由は何ですか？",
+                code: `# math_utils.py
+def calculate_area(radius):
+    import math
+    return math.pi * radius ** 2
+
+# main.py
+from math_utils import calculate_area
+
+result = calculate_area(5)
+print(f"面積: {result}")`,
+                choices: [
+                    "コードの実行速度を上げる",
+                    "コードを整理し、再利用可能にする",
+                    "エラーを自動修正する",
+                    "メモリ使用量を削減する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！モジュールにより、関連する機能をグループ化し、コードの整理と再利用が可能になります。また、名前空間を分離し、名前の衝突を防げます。",
+                    wrong: "モジュールを使わずにすべてを一つのファイルに書くと、コードが長大になり、保守が困難になります。関連する機能をモジュールに分けることで、管理しやすくなります。"
+                }
+            },
+            6: {
+                question: "__str__メソッドの役割は何ですか？",
+                code: `class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def __str__(self):
+        return f"{self.name}さん（{self.age}歳）"
+    
+    def __eq__(self, other):
+        return self.name == other.name and self.age == other.age
+
+person = Person("田中", 25)
+print(person)  # __str__が呼ばれる`,
+                choices: [
+                    "オブジェクトを削除する",
+                    "オブジェクトの文字列表現をカスタマイズする",
+                    "オブジェクトをコピーする",
+                    "オブジェクトの型を変更する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！__str__メソッドにより、print()やstr()でオブジェクトが表示される際の文字列表現をカスタマイズできます。これにより、わかりやすい出力が可能になります。",
+                    wrong: "__str__がないと、オブジェクトをprint()した際に<__main__.Person object at 0x...>のような、わかりにくい表示になります。__str__で人間が読みやすい形式を定義できます。"
+                }
+            },
+            7: {
+                question: "@staticmethodの正しい使用場面は？",
+                code: `class MathUtils:
+    @staticmethod
+    def add(a, b):
+        return a + b
+    
+    @classmethod
+    def create_calculator(cls):
+        return cls()
+    
+    def instance_method(self):
+        return "インスタンスメソッド"
+
+# 使用例
+result = MathUtils.add(3, 5)  # インスタンス不要`,
+                choices: [
+                    "必ずselfパラメータが必要な処理",
+                    "クラスに関連するが、インスタンスデータを使わない処理",
+                    "インスタンス変数を変更する処理",
+                    "継承でのみ使用される処理"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！@staticmethodは、クラスに関連するが、インスタンスデータを使わない処理に使用します。インスタンスを作成せずに呼び出せ、ユーティリティ関数に適しています。",
+                    wrong: "@staticmethodなしでは、不要なインスタンス化が必要になります。また、selfパラメータが不要なのに必要になり、メソッドの意図が不明確になります。"
+                }
+            },
+            8: {
+                question: "try-except文の適切な使用方法は？",
+                code: `def safe_divide(a, b):
+    try:
+        result = a / b
+        return result
+    except ZeroDivisionError:
+        print("ゼロで割ることはできません")
+        return None
+    except TypeError:
+        print("数値以外は計算できません")
+        return None
+    finally:
+        print("計算処理完了")
+
+print(safe_divide(10, 2))  # 5.0
+print(safe_divide(10, 0))  # None`,
+                choices: [
+                    "すべてのコードをtryブロックに入れる",
+                    "特定のエラーを予想し、適切に処理する",
+                    "エラーを完全に隠す",
+                    "エラーが起きたらプログラムを終了する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！try-except文は、予想されるエラーを適切に処理し、プログラムの安定性を向上させます。具体的なエラー型を指定することで、的確な対応ができます。",
+                    wrong: "例外処理なしでは、ゼロ除算などでプログラムがクラッシュします。適切な例外処理により、エラーが発生してもプログラムを続行できます。"
+                }
+            },
+            9: {
+                question: "イテレーターの利点は何ですか？",
+                code: `class NumberSequence:
+    def __init__(self, max_num):
+        self.max_num = max_num
+    
+    def __iter__(self):
+        self.current = 0
+        return self
+    
+    def __next__(self):
+        if self.current < self.max_num:
+            self.current += 1
+            return self.current
+        raise StopIteration
+
+# 使用例
+for num in NumberSequence(5):
+    print(num)  # 1, 2, 3, 4, 5`,
+                choices: [
+                    "メモリを大量に消費する",
+                    "一度に全データをメモリに保持せず、必要な時に生成する",
+                    "計算速度が遅くなる",
+                    "エラーが発生しやすくなる"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！イテレーターは必要な時にデータを生成するため、メモリ効率が良く、大量のデータを扱う際に威力を発揮します。Pythonらしい書き方でもあります。",
+                    wrong: "リスト等で全データを一度に生成すると、大量のメモリを消費します。イテレーターなら、必要な分だけ生成するため、メモリ効率が大幅に向上します。"
+                }
+            },
+            10: {
+                question: "デコレーターパターンの主な目的は？",
+                code: `def log_calls(func):
+    def wrapper(*args, **kwargs):
+        print(f"{func.__name__}が呼ばれました")
+        result = func(*args, **kwargs)
+        print(f"{func.__name__}が完了しました")
+        return result
+    return wrapper
+
+@log_calls
+def calculate(x, y):
+    return x + y
+
+result = calculate(3, 5)  # ログ出力付きで計算`,
+                choices: [
+                    "関数を削除する",
+                    "既存の関数に新しい機能を追加する",
+                    "関数の実行を停止する",
+                    "関数を複製する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！デコレーターは既存の関数を変更せずに、新しい機能（ログ、認証、計測など）を追加できます。関数の本来の処理を保持しながら、機能を拡張できます。",
+                    wrong: "デコレーターなしでは、各関数にログ処理を手動で追加する必要があり、コードの重複が発生します。デコレーターにより、横断的な関心事を効率的に処理できます。"
+                }
+            },
+            11: {
+                question: "シングルトンパターンの用途は？",
+                code: `class DatabaseConnection:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.connection = "DB接続確立"
+        return cls._instance
+    
+    def query(self, sql):
+        return f"実行: {sql}"
+
+# 同じインスタンスが返される
+db1 = DatabaseConnection()
+db2 = DatabaseConnection()
+print(db1 is db2)  # True`,
+                choices: [
+                    "複数のインスタンスを作成する",
+                    "クラスのインスタンスを一つだけに制限する",
+                    "インスタンスを削除する",
+                    "継承を禁止する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！シングルトンパターンは、クラスのインスタンスを一つだけに制限します。データベース接続、ログ出力、設定管理など、システム全体で一つであるべきリソースに使用します。",
+                    wrong: "シングルトンなしでは、複数のデータベース接続やログファイルが作成され、リソースの無駄遣いや設定の不整合が発生する可能性があります。"
+                }
+            },
+            12: {
+                question: "ファクトリーパターンの利点は？",
+                code: `class AnimalFactory:
+    @staticmethod
+    def create_animal(animal_type):
+        if animal_type == "dog":
+            return Dog()
+        elif animal_type == "cat":
+            return Cat()
+        else:
+            raise ValueError("未知の動物タイプ")
+
+class Dog:
+    def speak(self):
+        return "ワン"
+
+class Cat:
+    def speak(self):
+        return "ニャー"
+
+# 使用例
+animal = AnimalFactory.create_animal("dog")
+print(animal.speak())`,
+                choices: [
+                    "オブジェクトの削除を自動化する",
+                    "オブジェクトの生成ロジックを一箇所に集約し、柔軟性を向上する",
+                    "継承を禁止する",
+                    "メモリ使用量を削減する"
+                ],
+                correct: 1,
+                explanation: {
+                    correct: "正解！ファクトリーパターンは、オブジェクト生成の複雑さを隠蔽し、生成ロジックを一箇所に集約します。新しいクラスの追加や変更が容易になり、保守性が向上します。",
+                    wrong: "ファクトリーパターンなしでは、クライアントコードが具体的なクラス名を知る必要があり、新しいクラスが追加されるたびに多くの場所を修正する必要があります。"
+                }
+            }
+        };
+
+        // ストーリーデータ
+        const storyData = {
+            1: {
+                request: "助けて！炎のドラゴンが古代の図書館を襲っています！貴重なプログラミング書籍が燃えてしまいます！クラス設計の秘伝書を守ってください！",
+                thanks: "ありがとうございます！おかげで貴重な『クラス設計の秘伝書』が救われました！これで村の若いプログラマーたちが学習を続けられます！"
+            },
+            2: {
+                request: "水の精霊が知識の川を氾濫させています！村のデータベースが水没しそうです！継承の古文書が失われてしまいます！",
+                thanks: "素晴らしい！川が元に戻り、『継承の古文書』が守られました！super()の秘密がまた読めるようになりました！"
+            },
+            3: {
+                request: "土のゴーレムが秘密の洞窟を封印してしまいました！中にはカプセル化の秘宝が眠っているのです！@propertyの神器を取り戻してください！",
+                thanks: "やりました！洞窟が開き、『@propertyの神器』を発見しました！これで安全なデータアクセスの方法を学べます！"
+            },
+            4: {
+                request: "風のガーゴイルが研究所を嵐で包んでいます！ポリモーフィズムの研究資料が取り出せません！多態性の謎を解き明かしてください！",
+                thanks: "嵐が去りました！『多態性の研究ノート』が手に入りました！これで異なるクラスを統一的に扱う方法がわかります！"
+            },
+            5: {
+                request: "光の天使が神殿を眩しい光で包んでいます！モジュール設計の聖典が読めません！import文の秘密を教えてください！",
+                thanks: "光が和らぎました！『import文の聖典』が読めるようになりました！コードの整理方法が理解できました！"
+            },
+            6: {
+                request: "闇の悪魔が魔法学院を闇で包んでいます！特殊メソッドの秘密が闇に飲まれています！マジックメソッドの力を示してください！",
+                thanks: "闇が晴れました！『マジックメソッドの魔導書』が蘇りました！__str__と__eq__の力を理解しました！"
+            },
+            7: {
+                request: "雷エレメンタルが実験室を雷で破壊しています！静的メソッドの実験データが危険です！@staticmethodの知識で助けてください！",
+                thanks: "雷が止みました！『@staticmethodの実験ノート』が無事でした！インスタンス不要のメソッドの使い方がわかりました！"
+            },
+            8: {
+                request: "毒植物モンスターが薬草園を毒で汚染しています！例外処理の薬草が枯れてしまいます！try-except文で毒を浄化してください！",
+                thanks: "毒が浄化されました！『try-except文の薬草』が復活しました！エラー処理の重要性を学びました！"
+            },
+            9: {
+                request: "氷スライムが工房を氷で閉ざしています！イテレーターの設計図が凍りついています！反復処理の力で氷を溶かしてください！",
+                thanks: "氷が溶けました！『反復子の設計図』が解凍されました！メモリ効率の良い処理方法を学びました！"
+            },
+            10: {
+                request: "機械ロボットが工場を暴走させています！デコレーターの製造ラインが止まりません！関数装飾の知識で制御してください！",
+                thanks: "工場が正常化しました！『デコレーターパターンの設計書』が完成しました！関数に機能を追加する方法を理解しました！"
+            },
+            11: {
+                request: "炎の古竜が王城を襲撃しています！シングルトンの王冠が狙われています！一つだけのインスタンスで王国を守ってください！",
+                thanks: "王城が救われました！『唯一無二の王冠』を守り抜きました！システム全体で一つのリソースを管理する方法を学びました！"
+            },
+            12: {
+                request: "水の創造神が神殿を試練の場にしています！ファクトリーパターンの神器が試されています！オブジェクト生成の奥義を示してください！",
+                thanks: "神の試練を乗り越えました！『創造の神器』があなたを真のプログラマーと認めました！柔軟なオブジェクト生成の方法をマスターしました！"
+            }
+        };
+
+        // パーティクル効果
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 10 + 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // BGM管理
+        function playBGM(bgmId) {
+            // 全ての音楽を停止
+            ['bgmCastle', 'bgmField', 'bgmBattle', 'bgmVictory', 'bgmDungeon', 'bgmFinalBoss', 'bgmGameOver'].forEach(id => {
+                const audio = document.getElementById(id);
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            
+            // 指定された音楽を再生
+            if (bgmId) {
+                const audio = document.getElementById(bgmId);
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }
+
+        // 画面切り替え
+        function showScreen(screenId) {
+            const screens = ['titleScreen', 'prologueScreen', 'mapScreen', 'villagerScreen', 'battleScreen', 'resultScreen', 'gameOverScreen', 'endingScreen'];
+            screens.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            gameState.currentScreen = screenId;
+        }
+
+        // ゲーム開始
+        function startGame() {
+            showScreen('prologueScreen');
+            playBGM('bgmCastle');
+        }
+
+        // マップ表示
+        function showMap() {
+            showScreen('mapScreen');
+            playBGM('bgmField');
+            createMap();
+            updateDefeatedCount();
+        }
+
+        // マップ作成
+        function createMap() {
+            const mapElement = document.getElementById('gameMap');
+            mapElement.innerHTML = '';
+            
+            const mapSize = 9;
+            for (let y = 0; y < mapSize; y++) {
+                for (let x = 0; x < mapSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'map-cell';
+                    
+                    // プレイヤー位置
+                    if (x === gameState.playerPos.x && y === gameState.playerPos.y) {
+                        cell.classList.add('player');
+                        cell.innerHTML = '⚔️';
+                    }
+                    // 敵の位置
+                    else {
+                        const enemy = enemies.find(e => e.x === x && e.y === y && !gameState.defeatedEnemies.includes(e.id));
+                        if (enemy) {
+                            cell.classList.add('enemy');
+                            cell.innerHTML = enemy.type;
+                        }
+                        // 地形
+                        else if ((x + y) % 3 === 0) {
+                            cell.classList.add('terrain');
+                            // 地形データが保存されていない場合は生成して保存
+                            const key = `${x},${y}`;
+                            if (!gameState.terrainMap[key]) {
+                                const terrainTypes = ['🌲', '⛰️', '🌊'];
+                                gameState.terrainMap[key] = terrainTypes[Math.floor(Math.random() * 3)];
+                            }
+                            // 保存された地形データを使用
+                            cell.innerHTML = gameState.terrainMap[key];
+                        }
+                        else {
+                            cell.innerHTML = '';
+                        }
+                    }
+                    
+                    mapElement.appendChild(cell);
+                }
+            }
+        }
+
+        // プレイヤー移動
+        function movePlayer(dx, dy) {
+            const newX = gameState.playerPos.x + dx;
+            const newY = gameState.playerPos.y + dy;
+            
+            // 境界チェック
+            if (newX >= 0 && newX < 9 && newY >= 0 && newY < 9) {
+                gameState.playerPos.x = newX;
+                gameState.playerPos.y = newY;
+                createMap();
+                
+                // 敵との遭遇チェック
+                const enemy = enemies.find(e => 
+                    e.x === newX && e.y === newY && 
+                    !gameState.defeatedEnemies.includes(e.id)
+                );
+                
+                if (enemy) {
+                    setTimeout(() => showVillagerDialog(enemy), 500);
+                }
+            }
+        }
+
+        // 村人会話表示
+        function showVillagerDialog(enemy) {
+            gameState.currentEnemy = enemy;
+            const story = storyData[enemy.id];
+            
+            showScreen('villagerScreen');
+            playBGM('bgmDungeon');
+            
+            document.getElementById('villagerContent').innerHTML = `
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">👨‍🌾</div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">${enemy.name}の脅威</h2>
+                </div>
+                <div class="story-text mb-8">
+                    <p class="text-lg leading-relaxed">${story.request}</p>
+                </div>
+                <div class="text-center space-x-4">
+                    <button onclick="startBattle()" class="btn-success px-6 py-3">
+                        <i class="fas fa-sword mr-2"></i>助けに行く
+                    </button>
+                    <button onclick="showMap()" class="btn-primary px-6 py-3">
+                        <i class="fas fa-step-backward mr-2"></i>後で
+                    </button>
+                </div>
+            `;
+        }
+
+        // バトル開始
+        function startBattle() {
+            showScreen('battleScreen');
+            playBGM('bgmBattle');
+            
+            const enemy = gameState.currentEnemy;
+            const quiz = quizData[enemy.id];
+            
+            document.getElementById('battleContent').innerHTML = `
+                <div class="text-center mb-6">
+                    <img src="${enemy.image}" alt="${enemy.name}" class="w-32 h-32 mx-auto rounded-lg mb-4 shadow-lg">
+                    <h2 class="text-3xl font-bold text-red-600 mb-2">${enemy.name}</h2>
+                    <p class="text-lg text-gray-700">テーマ: ${enemy.topic}</p>
+                </div>
+                
+                <div class="quiz-container">
+                    <h3 class="text-xl font-bold mb-4 text-blue-800">${quiz.question}</h3>
+                    
+                    <div class="code-block mb-6">
+${quiz.code}
+                    </div>
+                    
+                    <div class="space-y-3">
+                        ${quiz.choices.map((choice, index) => `
+                            <button onclick="answerQuiz(${index})" 
+                                    class="w-full p-4 text-left bg-white border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all">
+                                ${index + 1}. ${choice}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // クイズ回答
+        function answerQuiz(selectedIndex) {
+            const enemy = gameState.currentEnemy;
+            const quiz = quizData[enemy.id];
+            const isCorrect = selectedIndex === quiz.correct;
+            
+            playBGM(null); // 音楽停止
+            
+            if (isCorrect) {
+                playBGM('bgmVictory');
+                gameState.defeatedEnemies.push(enemy.id);
+                showResult(true, quiz.explanation.correct);
+            } else {
+                playBGM('bgmGameOver');
+                showResult(false, quiz.explanation.wrong);
+            }
+        }
+
+        // 結果表示
+        function showResult(isCorrect, explanation) {
+            showScreen('resultScreen');
+            
+            if (isCorrect) {
+                const story = storyData[gameState.currentEnemy.id];
+                document.getElementById('resultContent').innerHTML = `
+                    <div class="text-center mb-8">
+                        <i class="fas fa-trophy text-6xl text-yellow-500 mb-4"></i>
+                        <h2 class="text-3xl font-bold text-green-600 mb-4">勝利！</h2>
+                        <div class="text-4xl mb-4">${gameState.currentEnemy.type}</div>
+                        <p class="text-xl text-green-700 mb-6">${gameState.currentEnemy.name}を倒しました！</p>
+                    </div>
+                    
+                    <div class="explanation-box mb-6">
+                        <h3 class="font-bold text-lg mb-3">解説</h3>
+                        <p>${explanation}</p>
+                    </div>
+                    
+                    <div class="story-text mb-8">
+                        <p class="text-lg">${story.thanks}</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="continueAdventure()" class="btn-success text-xl px-8 py-4">
+                            <i class="fas fa-map mr-2"></i>マップへ戻る
+                        </button>
+                    </div>
+                `;
+            } else {
+                document.getElementById('resultContent').innerHTML = `
+                    <div class="text-center mb-8">
+                        <i class="fas fa-times-circle text-6xl text-red-500 mb-4"></i>
+                        <h2 class="text-3xl font-bold text-red-600 mb-4">敗北...</h2>
+                        <p class="text-xl text-red-700 mb-6">勇者は力尽きてしまいました</p>
+                    </div>
+                    
+                    <div class="explanation-box mb-8">
+                        <h3 class="font-bold text-lg mb-3">解説</h3>
+                        <p>${explanation}</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="showGameOver()" class="btn-danger text-xl px-8 py-4">
+                            <i class="fas fa-redo mr-2"></i>冒険再開
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // 冒険続行
+        function continueAdventure() {
+            if (gameState.defeatedEnemies.length >= 12) {
+                showEnding();
+            } else {
+                showMap();
+            }
+        }
+
+        // ゲームオーバー表示
+        function showGameOver() {
+            showScreen('gameOverScreen');
+            playBGM(null);
+        }
+
+        // エンディング表示
+        function showEnding() {
+            showScreen('endingScreen');
+            playBGM('bgmVictory');
+        }
+
+        // ゲーム再開
+        function restartGame() {
+            gameState = {
+                playerPos: { x: 4, y: 4 },
+                defeatedEnemies: [],
+                currentEnemy: null,
+                currentScreen: 'title',
+                terrainMap: {} // 地形データもリセット
+            };
+            showScreen('titleScreen');
+            playBGM('bgmCastle');
+        }
+
+        // 倒した敵の数を更新
+        function updateDefeatedCount() {
+            const countElement = document.getElementById('defeatedCount');
+            if (countElement) {
+                countElement.textContent = gameState.defeatedEnemies.length;
+            }
+        }
+
+        // キーボード操作
+        document.addEventListener('keydown', (e) => {
+            if (gameState.currentScreen === 'mapScreen') {
+                switch(e.key.toLowerCase()) {
+                    case 'w': movePlayer(0, -1); break;
+                    case 's': movePlayer(0, 1); break;
+                    case 'a': movePlayer(-1, 0); break;
+                    case 'd': movePlayer(1, 0); break;
+                }
+            }
+        });
+
+        // 初期化
+        window.addEventListener('load', () => {
+            createParticles();
+            playBGM('bgmCastle');
+        });
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"95a81e626aeb7351","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.6.2","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDlGWjjZF%2FbE0iT1BGRatXARUkMdOdiGUK59shI8UfZnpwrU4Zc9EleYOVcX7P%2BlfbQdeANB4TSpJQ68XaJ9fqk9oQ9oFRMRhq5UKmzYtqgLHGJp8BT1qkKRMAdlTqH9hg7t7A21G5DdqVDNiQrFLLmXIHRHVlLWX6vza8pMgQRYw8gLU8DcrND3K7dJU52FslaethXcZJc6du1oaXpRJG0yzPpDAlyZTr%2BTEMdSKtJ16d%2FofWg9%2FRWRCKhy%2FH4VhUJobhzwNKFKOR7ugCxRlLPpeCNwwQrRgvgra6EhAs9FNIAVc4SHFBeRpGBIrY53jx4FottASavbTYdW3HyyVIi1tZCrplUrTpbuT1APlWGjV9VwobJ7%2BBFA%2Bi3wfqM9BgI2kfZvoIPVh%2FrjxOP%2BubM6AsGrRCRdBRzF3tjH1oXcpW4x0jnlbP5yaGCV%2FN9nheL8xWCOoFuu3qAlU94fDMya6JTJrrLlscbuM05pB%2Bc%2BI%2BmP8voCQLpW2OWOKVb%2BowcHzGU33p%2BuHYQNdVO3CwKE%3D";
+        window.__genspark_locale = "ja-JP";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDlGWjjZF/bE0iT1BGRatXARUkMdOdiGUK59shI8UfZnpwrU4Zc9EleYOVcX7P+lfbQdeANB4TSpJQ68XaJ9fqk9oQ9oFRMRhq5UKmzYtqgLHGJp8BT1qkKRMAdlTqH9hg7t7A21G5DdqVDNiQrFLLmXIHRHVlLWX6vza8pMgQRYw8gLU8DcrND3K7dJU52FslaethXcZJc6du1oaXpRJG0yzPpDAlyZTr+TEMdSKtJ16d/ofWg9/RWRCKhy/H4VhUJobhzwNKFKOR7ugCxRlLPpeCNwwQrRgvgra6EhAs9FNIAVc4SHFBeRpGBIrY53jx4FottASavbTYdW3HyyVIi1tZCrplUrTpbuT1APlWGjV9VwobJ7+BFA+i3wfqM9BgI2kfZvoIPVh/rjxOP+ubM6AsGrRCRdBRzF3tjH1oXcpW4x0jnlbP5yaGCV/N9nheL8xWCOoFuu3qAlU94fDMya6JTJrrLlscbuM05pB+c+I+mP8voCQLpW2OWOKVb+owcHzGU33p+uHYQNdVO3CwKE=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
