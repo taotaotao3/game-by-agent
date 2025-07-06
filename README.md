@@ -40,7 +40,7 @@
 - Windows 11
 - WSL2がインストール済み（Ubuntu推奨）
 
-### ステップ1: WSL2のセットアップ
+### ステップ
 
 ```powershell
 # PowerShellを管理者権限で実行
@@ -48,3 +48,9 @@ wsl --install
 
 # Ubuntuをインストール（既にWSLがある場合はスキップ）
 wsl --install -d Ubuntu-22.04
+
+git clone repo
+chmod +x -sh
+./-sh
+Upload that zip to itch.io
+
